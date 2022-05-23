@@ -4,7 +4,7 @@ URL_API = 'https://dns.bufferover.run/dns?q=.{}'
 DOMAINS_LIST = []
 
 
-def returnDomains(domain):
+def returnDomains(domain, silent=False):
     olddomain = domain
     req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain), 'JSON', 'GET')
@@ -16,7 +16,8 @@ def returnDomains(domain):
             domainIp, domain = _.split(',')
             if olddomain in req.filterUrl(domain):
                 DOMAINS_LIST.append(req.filterUrl(domain))
-        req.ModuleLoaded('bufferover.run', DOMAINS_LIST)
+        if not silent:
+            req.ModuleLoaded('bufferover.run', DOMAINS_LIST)
         return DOMAINS_LIST
     except:
         return []

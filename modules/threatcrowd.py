@@ -4,7 +4,7 @@ URL_API = 'https://www.threatcrowd.org/searchApi/v2/domain/report/?domain={}'
 DOMAINS_LIST = []
 
 
-def returnDomains(domain):
+def returnDomains(domain, silent=False):
     req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain), 'JSON', 'GET')
     try:
@@ -12,7 +12,8 @@ def returnDomains(domain):
             for x in json['subdomains']:
                 if domain in req.filterUrl(x):
                     DOMAINS_LIST.append(req.filterUrl(x))
-            req.ModuleLoaded('threatcrowd.org', DOMAINS_LIST)
+            if not silent:
+                req.ModuleLoaded('threatcrowd.org', DOMAINS_LIST)
             return DOMAINS_LIST
         else:
             return []

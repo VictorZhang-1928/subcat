@@ -4,7 +4,7 @@ URL_API = 'https://api.certspotter.com/v1/issuances?domain={}&expand=dns_names&e
 DOMAINS_LIST = []
 
 
-def returnDomains(domain):
+def returnDomains(domain, silent=False):
     req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain), 'JSON', 'GET')
     try:
@@ -14,7 +14,8 @@ def returnDomains(domain):
             for __ in _['dns_names']:
                 if domain in req.filterUrl(__):
                     DOMAINS_LIST.append(req.filterUrl(__))
-        req.ModuleLoaded('certspotter.com', DOMAINS_LIST)
+        if not silent:
+            req.ModuleLoaded('certspotter.com', DOMAINS_LIST)
         return DOMAINS_LIST
     except:
         return []

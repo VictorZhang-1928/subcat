@@ -6,14 +6,15 @@ URL_API = 'https://www.virustotal.com/vtapi/v2/domain/report?domain={0}&apikey={
 DOMAINS_LIST = []
 
 
-def returnDomains(domain):
+def returnDomains(domain, silent=False):
     req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain, VT_API_KEY), 'JSON', 'GET')
     try:
         for _ in json['subdomains']:
             if domain in _ and '*' not in _:
                 DOMAINS_LIST.append(_)
-        req.ModuleLoaded('virustotal', DOMAINS_LIST)
+        if not silent:
+            req.ModuleLoaded('virustotal', DOMAINS_LIST)
         return DOMAINS_LIST
     except:
         return []

@@ -10,7 +10,6 @@ import socket
 import argparse
 import warnings
 from datetime import datetime
-import re
 import navigator
 
 # load navigator Modules
@@ -65,11 +64,13 @@ def banner():
 
 
 class SubCat:
-    def __init__(self, domain, output, threads=50, scope=False, debug=False, statusCode=False, title=False, ip=False):
+    def __init__(self, domain, output, threads=50, scope=False, debug=False, statusCode=False, title=False, ip=False,
+                 silent=False):
         self.domain = domain
         self.threads = threads
         self.scope = scope
         self.debug = debug
+        self.silent = silent
         self.statusCode = statusCode
         self.title = title
         self.ip = ip
@@ -85,7 +86,7 @@ class SubCat:
                     self.scopeList.append(str(ip))
 
     def log(self, line):
-        if self.output:
+        if self.output and not self.silent:
             with open(self.output, 'a') as output_file:
                 output_file.write("%s\n" % line)
 
@@ -95,7 +96,7 @@ class SubCat:
         if self.statusCode:
             try:
                 statusCode = navigator.Navigator().downloadResponse('http://{}'.format(domainAndIp), 'STATUS',
-                                                                        'GET').status_code
+                                                                    'GET').status_code
             except:
                 statusCode = 'TIMEOUT'
 
@@ -108,14 +109,14 @@ class SubCat:
                     domainReturn += ' - ({0}{1}{2})'.format(dark_grey, statusCode, reset)
         if self.title:
             title = navigator.Navigator().downloadResponse('http://{}'.format(domainAndIp), 'TITLE',
-                                                                    'GET')
+                                                           'GET')
             domainReturn += ' - {0}{1}{2}'.format(dark_grey, title, reset)
         if self.ip:
             ipDomain = self.getIP(domainAndIp)
             if self.scope:
                 if ipDomain in self.scopeList:
-                        domainReturn += ' {}'.format(ipDomain)
-                        sys.stdout.write(domainReturn + '\n')
+                    domainReturn += ' {}'.format(ipDomain)
+                    sys.stdout.write(domainReturn + '\n')
                 self.log(domainReturn)
             else:
                 domainReturn += ' {}'.format(ipDomain)
@@ -141,63 +142,69 @@ class SubCat:
 
     def fetch(self):
         self._log('loading Modules')
-        threading.Thread(target=self.queue, args=[modules.securitytrails.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.binaryedge.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.shodan.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.virustotal.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.urlscan.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.alienvault.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.wayback.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.hackertarget.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.ctrsh.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.certspotter.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.bufferoverun.returnDomains(self.domain)]).start()
-        threading.Thread(target=self.queue, args=[modules.threatcrowd.returnDomains(self.domain)]).start()
+        threading.Thread(target=self.queue,
+                         args=[modules.securitytrails.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.binaryedge.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.shodan.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.virustotal.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.urlscan.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.alienvault.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.wayback.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.hackertarget.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.ctrsh.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.certspotter.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.bufferoverun.returnDomains(self.domain, self.silent)]).start()
+        threading.Thread(target=self.queue, args=[modules.threatcrowd.returnDomains(self.domain, self.silent)]).start()
 
     def getDomains(self):
         th = threading.Thread(target=self.fetch)
         th.daemon = True
         th.start()
         load = 1
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
+        print()
         try:
             while th.is_alive():
-                sys.stdout.write("\r" + '[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + "\033[1m\033[31m\033[0m\033[32m" + animation[
-                    load % len(animation)] + '\033[1m\033[31m\033[32m extracting subdomains : ' + str(
-                    len(domainList)) + '\033[0m')
+                if not self.silent:
+                    self._info('{0} Enumerating subdomains for {4}{2}{5}: {3}{1}{5}'.format(animation[
+                                                                            load % len(animation)], len(domainList), self.domain, yellow, red, reset),
+                               r=True)
+                    sys.stdout.flush()
+                    load += 1
+                    time.sleep(0.09)
+            if not self.silent:
+                self._info('Found {2}{0}{4} for {3}{1}{4}'.format(len(domainList), self.domain, yellow, red, reset))
                 sys.stdout.flush()
-                load += 1
-                time.sleep(0.09)
-            sys.stdout.write(
-                '\r\n[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + "\033[1m\033[1m\033[32m extracted subdomains : \033[33m" + str(
-                    len(domainList)) + "  \033[0m")
-            sys.stdout.flush()
-            print('\n')
-            th.join()
+                th.join()
         except KeyboardInterrupt:
             self._warn('Shutting down...')
             exit(0)
 
     def _log(self, *args):
-        if self.debug:
+        if self.debug and not self.silent:
             now = datetime.now()
             current_time = now.strftime("%H:%M:%S")
             print(
                 '[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[33m' + 'DEBUG' + '\033[m' + ']:' + '\033[m' + ' {0}'.format(
                     *args))
 
-    def _info(self, *args):
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print(
-                '[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + '\033[m' + ' {0}'.format(
+    def _info(self, *args, r=False):
+        if not self.silent:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            if r:
+                sys.stdout.write('\r'
+                                 '[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + '\033[m' + ' {0}'.format(
                     *args))
+            else:
+                print(
+                    '[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + '\033[m' + ' {0}'.format(
+                        *args))
 
     def _warn(self, *args):
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print(
+        if not self.silent:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            print(
                 '\n\033[m[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[31m' + 'WARNING' + '\033[m' + ']:' + '\033[m' + ' {0}'.format(
                     *args))
 
@@ -218,44 +225,52 @@ def argParserCommands():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--domain', dest="domain", help='google.com',
                         required=False)
-    parser.add_argument('-l', default=(None if sys.stdin.isatty() else sys.stdin), type=argparse.FileType('r'), dest="domainList", help='Domains list stored in file',
+    parser.add_argument('-l', default=(None if sys.stdin.isatty() else sys.stdin), type=argparse.FileType('r'),
+                        dest="domainList", help='file containing list of domains for subdomain discovery',
                         required=False)
     parser.add_argument('-sc', '--status-code', dest="statusCode",
-                        help='Show response status code', default=False,
+                        help='show response status code', default=False,
                         action="store_true")
     parser.add_argument('-title', '--title', dest="title",
-                        help='Show page title', default=False,
+                        help='show page title', default=False,
                         action="store_true")
     parser.add_argument('--scope', dest="scope",
-                        help='Show only subdomains in scope', default=False)
-    parser.add_argument('-t', '--threads', type=int, dest="threads", default=50, help="number of threads")
+                        help='show only subdomains in scope', default=False)
+    parser.add_argument('-t', '--threads', type=int, dest="threads", default=50,
+                        help="number of concurrent threads for resolving (default 40)")
     parser.add_argument('-ip', '--ip', dest="ip", help='Resolve IP address', default=False,
                         action="store_true")
-    parser.add_argument('-v', dest="verbose", help='Verbose mode', default=False,
+    parser.add_argument('-v', dest="verbose", help='show verbose output', default=False,
                         action="store_true")
-    parser.add_argument("-o", "--output", help="Directs the output to a name of your choice")
+    parser.add_argument('-silent', '--silent', dest="silent", help='show only subdomains in output', default=False,
+                        action="store_true")
+    parser.add_argument("-o", "--output", help="file to write output to")
 
     return parser
 
 
 if __name__ == "__main__":
-    banner()
-
     args = argParserCommands().parse_args()
+    if not args.silent:
+        banner()
+
     if args.domainList and args.domain is None:
         dlist = args.domainList.read()
         for d in dlist.split('\n'):
-            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
+            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title,
+                            args.ip, args.silent)
             subcat.getDomains()
             subcat.fetchDomains(domainList)
     elif args.domain and args.domainList is None:
-        subcat = SubCat(args.domain, args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
+        subcat = SubCat(args.domain, args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title,
+                        args.ip, args.silent)
         subcat.getDomains()
         subcat.fetchDomains(domainList)
     elif args.domain and args.domainList:
         dlist = args.domainList.read()
         for d in dlist.split('\n'):
-            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
+            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title,
+                            args.ip, args.silent)
             subcat.getDomains()
             subcat.fetchDomains(domainList)
     else:
