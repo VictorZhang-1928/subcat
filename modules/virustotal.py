@@ -1,14 +1,19 @@
 import navigator
+import os
 
-URL_API = 'http://web.archive.org/cdx/search/cdx?url=*.{}/*&output=json&collapse=urlkey'
+VT_API_KEY = os.getenv('VT_API_KEY')
+URL_API = 'https://www.virustotal.com/vtapi/v2/domain/report?domain={0}&apikey={1}'
 DOMAINS_LIST = []
 
 
 def returnDomains(domain):
     req = navigator.Navigator()
-
-    json = req.downloadResponse(URL_API.format(domain), 'JSON', 'GET')
-    for _ in json:
-        if domain in _[2] and '*' not in _[2]:
-            DOMAINS_LIST.append(req.Hostname(_[2]))
-    return DOMAINS_LIST
+    json = req.downloadResponse(URL_API.format(domain, VT_API_KEY), 'JSON', 'GET')
+    try:
+        for _ in json['subdomains']:
+            if domain in _ and '*' not in _:
+                DOMAINS_LIST.append(_)
+        req.ModuleLoaded('virustotal', DOMAINS_LIST)
+        return DOMAINS_LIST
+    except:
+        return []

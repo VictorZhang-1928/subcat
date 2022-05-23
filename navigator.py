@@ -1,3 +1,6 @@
+import sys
+from datetime import datetime
+
 import requests
 import re
 import urllib.parse
@@ -16,9 +19,9 @@ class Navigator:
                                 'cache-control': 'no-cache',
                                 'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36)'}
 
-    def downloadResponse(self, url, typeResponse, method):
-
-        self.sessionRequest.headers.update(self.header)
+    def downloadResponse(self, url, typeResponse, method, header=False):
+        if header:
+            self.sessionRequest.headers.update(header)
 
         if typeResponse == 'JSON':
 
@@ -31,6 +34,12 @@ class Navigator:
 
             return self.sessionRequest.get(url).text
 
+        elif typeResponse == 'TITLE':
+            try:
+                res = self.sessionRequest.get(url, timeout=10).text
+                return re.search('(?<=<title>).+?(?=</title>)', res, re.DOTALL).group().strip()
+            except:
+                return ''
         else:
 
             return self.sessionRequest.get(url, timeout=5)  # status_code
@@ -58,3 +67,13 @@ class Navigator:
     def Hostname(self, url):
         parsed = urllib.parse.urlsplit(url)
         return parsed.hostname
+
+    def ModuleLoaded(self, Module, DOMAINS_LIST):
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        sys.stdout.flush()
+        sys.stdout.writelines(
+            '\r[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + "\033[93m " + Module + " \033[33m" + str(
+                len(DOMAINS_LIST)) + "\033[m asset                                             \n")
+        sys.stdout.flush()
+

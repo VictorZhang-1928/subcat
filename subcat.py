@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import warnings
 import signal
 import threading
 import multiprocessing
@@ -9,8 +8,9 @@ import os
 import sys
 import socket
 import argparse
+import warnings
 from datetime import datetime
-
+import re
 import navigator
 
 # load navigator Modules
@@ -51,24 +51,29 @@ def banner():
 \tj▀▀███▌ ▐█▐  ▀▌▄█  ▀▀█ ▐███  █▌▄ ▀█▄▄▀ ▐█M▀.       ▀█▄.▀ J▀
 \t╚▄,,¬¬⌐▄█▌ ▀▄,,, ▄██ █,,,,,▓██▌ ▀▄,,,,▄█╩j▌,██▀▀▀▀▌,█▌`█,▐█
 \t  ▀▀▀▀▀▀▀    ▀▀▀▀▀▀ ""▀▀▀▀▀▀      ▀▀▀""`  ▀▀▀     ▀▀▀   ▀▀▀
-\t               {0}΅qΆΆΆΆ{1}ββ {2}V1.0{0}@{3}duty1g{1} ββββββΡ΅  
+\t               {0}΅qΆΆΆΆ{1}βββββββββββββββββββββΡ΅  
 \t                  {0}ΫθΆΆΆ{1}ββββββββββββββββΡ΅         
-\t                      {1}΅ΫΫΫΫΝNNΝΫΫΫΐ΅΅                          
+\t                      {1}΅ΫΫΫΫΝNNΝΫΫΫΐ΅΅      
+\t                    
+\t                    
+\t                    {5}v{0}{{{2}1.1.1{5}#dev}}{0}@{3}duty1g{1}
 \t                            {4}
-\n'''
-    head = head.format(light_grey, dark_grey, red, yellow, reset)
+'''
+    head = head.format(light_grey, dark_grey, red, yellow, reset, green)
     os.system('cls' if os.name == 'nt' else 'clear')
-    sys.stdout.write(bold + head + reset)
+    print(bold + head + reset)
 
 
 class SubCat:
-    def __init__(self, domain, threads=50, scope=False, debug=False, statusCode=False, nip=False):
+    def __init__(self, domain, output, threads=50, scope=False, debug=False, statusCode=False, title=False, ip=False):
         self.domain = domain
         self.threads = threads
         self.scope = scope
         self.debug = debug
         self.statusCode = statusCode
-        self.nip = nip
+        self.title = title
+        self.ip = ip
+        self.output = output
         self.scopeList = []
         if self.scope:
             self._log('Loading scope list')
@@ -79,14 +84,18 @@ class SubCat:
                 for ip in ipaddress.IPv4Network(line.strip()):
                     self.scopeList.append(str(ip))
 
+    def log(self, line):
+        if self.output:
+            with open(self.output, 'a') as output_file:
+                output_file.write("%s\n" % line)
+
     def fetchWorker(self, q):
         domainAndIp = q
-        ipDomain = self.getIP(domainAndIp)
         domainReturn = domainAndIp
         if self.statusCode:
             try:
                 statusCode = navigator.Navigator().downloadResponse('http://{}'.format(domainAndIp), 'STATUS',
-                                                                    'GET').status_code
+                                                                        'GET').status_code
             except:
                 statusCode = 'TIMEOUT'
 
@@ -97,20 +106,25 @@ class SubCat:
                     domainReturn += ' - ({0}{1}{2})'.format(red, statusCode, reset)
                 else:
                     domainReturn += ' - ({0}{1}{2})'.format(dark_grey, statusCode, reset)
-
-        if self.scope:
-            if ipDomain in self.scopeList:
-                if not self.nip:
-                    domainReturn += ' {}'.format(ipDomain)
-                else:
-                    domainReturn += ''
-                print(domainReturn)
-        else:
-            if not self.nip:
-                domainReturn += ' {}'.format(ipDomain)
+        if self.title:
+            title = navigator.Navigator().downloadResponse('http://{}'.format(domainAndIp), 'TITLE',
+                                                                    'GET')
+            domainReturn += ' - {0}{1}{2}'.format(dark_grey, title, reset)
+        if self.ip:
+            ipDomain = self.getIP(domainAndIp)
+            if self.scope:
+                if ipDomain in self.scopeList:
+                        domainReturn += ' {}'.format(ipDomain)
+                        sys.stdout.write(domainReturn + '\n')
+                self.log(domainReturn)
             else:
-                domainReturn += ''
-            print(domainReturn)
+                domainReturn += ' {}'.format(ipDomain)
+                sys.stdout.write(domainReturn + '\n')
+                self.log(domainReturn)
+        else:
+            domainReturn += ''
+            sys.stdout.write(domainReturn + '\n')
+            self.log(domainReturn)
 
     def init_worker(self):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -127,6 +141,11 @@ class SubCat:
 
     def fetch(self):
         self._log('loading Modules')
+        threading.Thread(target=self.queue, args=[modules.securitytrails.returnDomains(self.domain)]).start()
+        threading.Thread(target=self.queue, args=[modules.binaryedge.returnDomains(self.domain)]).start()
+        threading.Thread(target=self.queue, args=[modules.shodan.returnDomains(self.domain)]).start()
+        threading.Thread(target=self.queue, args=[modules.virustotal.returnDomains(self.domain)]).start()
+        threading.Thread(target=self.queue, args=[modules.urlscan.returnDomains(self.domain)]).start()
         threading.Thread(target=self.queue, args=[modules.alienvault.returnDomains(self.domain)]).start()
         threading.Thread(target=self.queue, args=[modules.wayback.returnDomains(self.domain)]).start()
         threading.Thread(target=self.queue, args=[modules.hackertarget.returnDomains(self.domain)]).start()
@@ -149,9 +168,9 @@ class SubCat:
                     len(domainList)) + '\033[0m')
                 sys.stdout.flush()
                 load += 1
-                time.sleep(0.1)
+                time.sleep(0.09)
             sys.stdout.write(
-                '\r[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + "\033[1m\033[1m\033\033[32m extracted subdomains : \033[33m" + str(
+                '\r\n[' + '\033[36m' + current_time + '\033[m' + '] [' + '\033[36m' + 'INFO' + '\033[m' + ']:' + "\033[1m\033[1m\033[32m extracted subdomains : \033[33m" + str(
                     len(domainList)) + "  \033[0m")
             sys.stdout.flush()
             print('\n')
@@ -199,18 +218,22 @@ def argParserCommands():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--domain', dest="domain", help='google.com',
                         required=False)
-    parser.add_argument('-l', default=(None if sys.stdin.isatty() else sys.stdin), type=argparse.FileType('r'), dest="domainList", help='list.txt',
+    parser.add_argument('-l', default=(None if sys.stdin.isatty() else sys.stdin), type=argparse.FileType('r'), dest="domainList", help='Domains list stored in file',
                         required=False)
     parser.add_argument('-sc', '--status-code', dest="statusCode",
                         help='Show response status code', default=False,
                         action="store_true")
+    parser.add_argument('-title', '--title', dest="title",
+                        help='Show page title', default=False,
+                        action="store_true")
     parser.add_argument('--scope', dest="scope",
-                        help='Show only in cope', default=False)
-    parser.add_argument('-t', '--threads', type=int, dest="threads", default=50, help="50")
-    parser.add_argument('-nip', '--no-ip', dest="nip", help='Do not respolve IP', default=False,
+                        help='Show only subdomains in scope', default=False)
+    parser.add_argument('-t', '--threads', type=int, dest="threads", default=50, help="number of threads")
+    parser.add_argument('-ip', '--ip', dest="ip", help='Resolve IP address', default=False,
                         action="store_true")
-    parser.add_argument('-v', dest="verbose", help='Verbose Mode', default=False,
+    parser.add_argument('-v', dest="verbose", help='Verbose mode', default=False,
                         action="store_true")
+    parser.add_argument("-o", "--output", help="Directs the output to a name of your choice")
 
     return parser
 
@@ -222,17 +245,17 @@ if __name__ == "__main__":
     if args.domainList and args.domain is None:
         dlist = args.domainList.read()
         for d in dlist.split('\n'):
-            subcat = SubCat(d.strip(), args.threads, args.scope, args.verbose, args.statusCode, args.nip)
+            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
             subcat.getDomains()
             subcat.fetchDomains(domainList)
     elif args.domain and args.domainList is None:
-        subcat = SubCat(args.domain, args.threads, args.scope, args.verbose, args.statusCode, args.nip)
+        subcat = SubCat(args.domain, args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
         subcat.getDomains()
         subcat.fetchDomains(domainList)
     elif args.domain and args.domainList:
         dlist = args.domainList.read()
         for d in dlist.split('\n'):
-            subcat = SubCat(d.strip(), args.threads, args.scope, args.verbose, args.statusCode, args.nip)
+            subcat = SubCat(d.strip(), args.output, args.threads, args.scope, args.verbose, args.statusCode, args.title, args.ip)
             subcat.getDomains()
             subcat.fetchDomains(domainList)
     else:

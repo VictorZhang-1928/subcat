@@ -11,4 +11,5 @@ def returnDomains(domain):
     for _ in json['passive_dns']:
         if domain in _['hostname'] and '*' not in _['hostname']:
             DOMAINS_LIST.append(req.filterUrl(_['hostname']))
+    req.ModuleLoaded('alienvault.com', DOMAINS_LIST)
     return DOMAINS_LIST

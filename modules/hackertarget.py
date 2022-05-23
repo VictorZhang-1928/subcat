@@ -7,8 +7,12 @@ DOMAINS_LIST = []
 def returnDomains(domain):
     req = navigator.Navigator()
 
-    html = req.downloadResponse(URL_API.format(domain), 'HTML', 'GET').split(',')
-    # print(htmlResponse)
-    DOMAINS_LIST.append(html[0])
-
-    return DOMAINS_LIST
+    html = req.downloadResponse(URL_API.format(domain), 'HTML', 'GET').split('\n')
+    try:
+        for _ in html:
+            if domain in _.split(',')[0]:
+                DOMAINS_LIST.append(_.split(',')[0])
+        req.ModuleLoaded('hackertarget.com', DOMAINS_LIST)
+        return DOMAINS_LIST
+    except:
+        return []

@@ -1,14 +1,17 @@
-import navegador
+import navigator
 
 URL_API = 'https://urlscan.io/api/v1/search/?q=domain:{}'
 DOMAINS_LIST = []
 
 
-# working
-
 def returnDomains(domain):
-    req = navegador.Navegador()
-
+    req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain), 'JSON', 'GET')
-
-    return DOMAINS_LIST
+    try:
+        for x in json['results']:
+            if domain in req.Hostname(x['page']['url']):
+                DOMAINS_LIST.append(req.Hostname(x['page']['url']))
+        req.ModuleLoaded('urlscan.io', DOMAINS_LIST)
+        return DOMAINS_LIST
+    except:
+        return []
