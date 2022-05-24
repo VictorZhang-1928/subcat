@@ -172,7 +172,7 @@ class SubCat:
                     load += 1
                     time.sleep(0.09)
             if not self.silent:
-                self._info('Found {2}{0}{4} for {3}{1}{4}'.format(len(domainList), self.domain, yellow, red, reset))
+                self._info('Found {2}{0}{4} for {3}{1}{4}\n'.format(len(domainList), self.domain, yellow, red, reset))
                 sys.stdout.flush()
                 th.join()
         except KeyboardInterrupt:
