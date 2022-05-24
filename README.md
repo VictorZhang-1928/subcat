@@ -51,19 +51,25 @@ This will display help for the tool. Here are all the switches it supports.
 ```yaml
 Flags:
 INPUT:
-   -d --domain string  domains to find subdomains for
-   -l string[] | stdin  list of domains to find subdomains for
-   --scope string Show only in cope
+   -d --domain string    domains to find subdomains for
+   -l DOMAINLIST         file containing list of domains for subdomain discovery
+   --scope SCOPE         show only subdomains in scope
 
 OUTPUT:
-   -sc, --status-code string       Show response status code
-   -nip --no-ip       Do not respolve IP
+   -sc, --status-code    show response status code
+   -ip, --ip             resolve IP address
+   -title, --title       show page title
+   -silent, --silent     show only subdomains in output
+   -o OUTPUT, --output OUTPUT
+                        file to write output to
    
 CONFIG:
-   -t --threads       Number of threads used
+   -t THREADS, --threads THREADS
+                        number of concurrent threads for resolving (default 40)
 
 DEBUG:
-   -v        show verbose output
+   -v                    show verbose output
+   -h, --help            show this help message and exit
 ```
 
 ### Running SubCat
