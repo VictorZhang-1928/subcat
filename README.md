@@ -27,7 +27,7 @@ We have designed SubCat to comply with all passive sources licenses, and usage r
 
 ### Features
 
-<img width="800" alt="demo" src="https://user-images.githubusercontent.com/3162883/170030037-4e5cf0f7-3ed5-46aa-afaa-4d992a2c1eb3.gif">
+<img width="1000" alt="demo" src="https://user-images.githubusercontent.com/3162883/170030037-4e5cf0f7-3ed5-46aa-afaa-4d992a2c1eb3.gif">
 
 - Fast and powerful resolution and wildcard elimination module
 - **Curated** passive sources to maximize results
