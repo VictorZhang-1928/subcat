@@ -15,6 +15,7 @@
 <p align="center">
   <a href="#features">Features</a> •
   <a href="#Install">Install</a> •
+  <a href="#post-installation">Post Installation</a> •
   <a href="#Usage">Usage</a> •
   <a href="#running-subcat">Running SubCat</a>
 </p>
