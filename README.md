@@ -43,7 +43,7 @@ pip3 install -r requirements.txt
 
 ### Usage
 
-```
+```console
 python3 subcat.py -h
 ```
 This will display help for the tool. Here are all the switches it supports.
@@ -74,7 +74,6 @@ cat domains | python3 subcat.py
 ```console
 python3 subcat.py -d hackerone.com
 
-
  
 	                      ;            ;                  
 	                    ρββΚ          ;ββΝ                
@@ -94,27 +93,49 @@ python3 subcat.py -d hackerone.com
 	j▀▀███▌ ▐█▐  ▀▌▄█  ▀▀█ ▐███  █▌▄ ▀█▄▄▀ ▐█M▀.       ▀█▄.▀ J▀
 	╚▄,,¬¬⌐▄█▌ ▀▄,,, ▄██ █,,,,,▓██▌ ▀▄,,,,▄█╩j▌,██▀▀▀▀▌,█▌`█,▐█
 	  ▀▀▀▀▀▀▀    ▀▀▀▀▀▀ ""▀▀▀▀▀▀      ▀▀▀""`  ▀▀▀     ▀▀▀   ▀▀▀
-	               ΅qΆΆΆΆββ V1.0@duty1g ββββββΡ΅  
+	               ΅qΆΆΆΆβββββββββββββββββββββΡ΅  
 	                  ΫθΆΆΆββββββββββββββββΡ΅         
-	                      ΅ΫΫΫΫΝNNΝΫΫΫΐ΅΅                          
+	                      ΅ΫΫΫΫΝNNΝΫΫΫΐ΅΅      
+	                    
+	                    
+	                    v{1.1.1#dev}@duty1g
 	                            
 
-[12:37:13] [INFO]: extracted subdomains : 14  
 
-docs.hackerone.com 185.199.111.153
-support.hackerone.com 104.16.51.111
-3d.hackerone.com 0.0.0.0
-mta-sts.forwarding.hackerone.com 185.199.110.153
-api.hackerone.com 104.16.99.52
-www.hackerone.com 104.16.99.52
-events.hackerone.com 0.0.0.0
-a.ns.hackerone.com 162.159.0.31
-b.ns.hackerone.com 162.159.1.31
-resources.hackerone.com 3.98.63.202
-mta-sts.managed.hackerone.com 185.199.111.153
-gslink.hackerone.com 13.224.226.45
-mta-sts.hackerone.com 185.199.111.153
-hackerone.com 104.16.99.52
+[13:05:51] [INFO]: binaryedge.io 13 asset                                             
+[13:05:52] [INFO]: virustotal 18 asset                                             
+[13:05:53] [INFO]: urlscan.io 98 asset                                             
+[13:05:54] [INFO]: alienvault.com 59 asset                                             
+[13:06:28] [INFO]: wayback 193046 asset                                             
+[13:06:29] [INFO]: hackertarget.com 4 asset                                             
+[13:06:31] [INFO]: crt.sh 268 asset                                             
+[13:06:32] [INFO]: certspotter.com 12 asset                                             
+[13:06:33] [INFO]: bufferover.run 11 asset                                             
+[13:06:33] [INFO]: threatcrowd.org 4 asset                                             
+[13:06:33] [INFO]: Found 21 for hackerone.com
+
+mta-sts.managed.hackerone.com
+mta-sts.hackerone.com
+mta-sts.forwarding.hackerone.com
+a.ns.hackerone.com
+b.ns.hackerone.com
+docs.hackerone.com
+go.hackerone.com
+info.hackerone.com
+links.hackerone.com
+support.hackerone.com
+api.hackerone.com
+www.hackerone.com
+hackerone.com
+zendesk1.hackerone.com
+zendesk3.hackerone.com
+gslink.hackerone.com
+zendesk4.hackerone.com
+resources.hackerone.com
+events.hackerone.com
+zendesk2.hackerone.com
+3d.hackerone.com
+
 
 ```
 
