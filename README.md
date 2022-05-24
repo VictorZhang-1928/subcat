@@ -78,6 +78,17 @@ cat domains | python3 subcat.py
 ```
 
 ```console
+echo hackerone.com | python3 subcat.py -silent | httpx -silent
+
+http://hackerone.com
+http://www.hackerone.com
+http://docs.hackerone.com
+http://api.hackerone.com
+https://docs.hackerone.com
+http://mta-sts.managed.hackerone.com
+```
+
+```console
 python3 subcat.py -d hackerone.com
 
  
