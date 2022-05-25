@@ -7,7 +7,6 @@ SHODAN_API_KEY = os.getenv('SHODAN_API_KEY')
 URL_API = 'https://api.shodan.io/dns/domain/{0}?key={1}'
 DOMAINS_LIST = []
 
-
 def returnDomains(domain, silent=False):
     req = navigator.Navigator()
     json = req.downloadResponse(URL_API.format(domain, SHODAN_API_KEY), 'JSON', 'GET')

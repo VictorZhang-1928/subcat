@@ -172,7 +172,7 @@ class SubCat:
                     load += 1
                     time.sleep(0.09)
             if not self.silent:
-                self._info('Found {2}{0}{4} for {3}{1}{4}\n'.format(len(domainList), self.domain, yellow, red, reset))
+                self._info('Found {2}{0}{4} for {3}{1}{4}\n'.format(len(domainList), self.domain, yellow, red, reset), r=True)
                 sys.stdout.flush()
                 th.join()
         except KeyboardInterrupt:
@@ -223,7 +223,7 @@ class SubCat:
 
 def argParserCommands():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--domain', dest="domain", help='google.com',
+    parser.add_argument('-d', '--domain', dest="domain", help='domains to find subdomains for',
                         required=False)
     parser.add_argument('-l', default=(None if sys.stdin.isatty() else sys.stdin), type=argparse.FileType('r'),
                         dest="domainList", help='file containing list of domains for subdomain discovery',
