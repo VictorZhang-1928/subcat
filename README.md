@@ -44,7 +44,7 @@ pip3 install -r requirements.txt
 
 ### Post Installation
 
-API Key is needed before querying on third-party sites, such as ``Shodan, SecurityTrails, Virustotal,``` and ```BinaryEdge```.
+API Key is needed before querying on third-party sites, such as ```Shodan, SecurityTrails, Virustotal,``` and ```BinaryEdge```.
 
 - The API key setting can be done via env variables.
 
