@@ -122,6 +122,11 @@ class SubCat:
                 domainReturn += ' {}'.format(ipDomain)
                 sys.stdout.write(domainReturn + '\n')
                 self.log(domainReturn)
+        elif self.scope:
+            ipDomain = self.getIP(domainAndIp)
+            if ipDomain in self.scopeList:
+                sys.stdout.write(domainReturn + '\n')
+                self.log(domainReturn)
         else:
             domainReturn += ''
             sys.stdout.write(domainReturn + '\n')
@@ -172,7 +177,7 @@ class SubCat:
                     load += 1
                     time.sleep(0.09)
             if not self.silent:
-                self._info('Found {2}{0}{4} for {3}{1}{4}\n'.format(len(domainList), self.domain, yellow, red, reset), r=True)
+                self._info('Found {2}{0}{4} for {3}{1}{4}\n\n'.format(len(domainList), self.domain, yellow, red, reset), r=True)
                 sys.stdout.flush()
                 th.join()
         except KeyboardInterrupt:
